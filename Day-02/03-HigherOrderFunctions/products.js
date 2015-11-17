@@ -47,16 +47,127 @@ print("Sorting", function(){
     });
 
     print("Any collection by any attribute", function(){
-        function sort(){
+        function sort(list, attrName){
+            for(var i=0; i<list.length-1; i++)
+                for(var j= i+1; j<list.length; j++)
+                    if (list[i][attrName] > list[j][attrName]){
+                        var temp = list[i];
+                        list[i] = list[j];
+                        list[j] = temp;
+                    }
 
         }
         print("Products by cost", function(){
-            sort();
+            sort(products, "cost");
             console.table(products);
         })
         print("Products by units", function(){
-            sort();
+            sort(products, "units");
             console.table(products);
         })
     })
+    print("Any collection by any comparer", function(){
+        function sort(list, comparerFn){
+            for(var i=0; i<list.length-1; i++)
+                for(var j= i+1; j<list.length; j++){
+                    var comparerResult = comparerFn(list[i], list[j])
+                    if (comparerResult > 0){
+                        var temp = list[i];
+                        list[i] = list[j];
+                        list[j] = temp;
+                    }
+                }
+
+        }
+        print("Products by value [units * cost]", function(){
+            function productComparerByValue(p1, p2){
+                var p1Value = p1.cost * p1.units,
+                    p2Value = p2.cost * p2.units;
+                if (p1Value < p2Value) return -1;
+                if (p1Value === p2Value) return 0;
+                return 1;
+            }
+            sort(products, productComparerByValue);
+            console.table(products);
+        });
+    })
+});
+
+print("Filter", function(){
+   print("costly products [cost > 50]", function(){
+       function filterCostlyProducts(){
+           var result = [];
+           for(var i=0; i<products.length; i++)
+               if (products[i].cost > 50)
+                   result.push(products[i]);
+           return result;
+       }
+       var costlyProducts = filterCostlyProducts();
+       console.table(costlyProducts);
+   });
+   print("Category 1 products [category === 1]", function(){
+       function filterCategory1Product(){
+           var result = [];
+           for(var i=0; i<products.length; i++)
+               if (products[i].category === 1)
+                   result.push(products[i]);
+           return result;
+       }
+       var category1Products = filterCategory1Product();
+       console.table(category1Products);
+   });
+   print("Any list by any criteria", function(){
+       function filter(list, predicateFn){
+           var result = [];
+           for(var i=0; i<list.length; i++)
+               if (predicateFn(list[i]))
+                   result.push(list[i]);
+           return result;
+       }
+       function negate(predicate){
+           return function(){
+               return !predicate.apply(this, arguments);
+           };
+       }
+       var costlyProductPredicate = function(product){
+           return product.cost > 50;
+       };
+
+       /*var affordableProductPredicate = function(product){
+           return !costlyProductPredicate(product);
+       };*/
+       var affordableProductPredicate = negate(costlyProductPredicate);
+
+       var category1ProductPredicate = function(product){
+           return product.category === 1;
+       };
+
+       /*var nonCategory1ProductPredicate = function (product){
+           return !category1ProductPredicate(product);
+       };*/
+       var nonCategory1ProductPredicate = negate(category1ProductPredicate);
+
+
+       print("costly products [cost > 50]", function(){
+           var costlyProducts = filter(products, costlyProductPredicate);
+           console.table(costlyProducts);
+       });
+
+       print("affordable products [cost <= 50]", function(){
+
+           var affordableProducts = filter(products, affordableProductPredicate);
+           console.table(affordableProducts);
+       })
+
+       print("category 1 products", function(){
+           var category1Products = filter(products, category1ProductPredicate);
+           console.table(category1Products);
+       })
+       print("non category 1 products", function(){
+
+           var nonCategory1Products = filter(products, nonCategory1ProductPredicate);
+           console.table(nonCategory1Products);
+       })
+
+   })
 });
