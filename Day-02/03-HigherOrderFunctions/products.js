@@ -7,16 +7,16 @@ var products = [
 ];
 
 /*
-sort
-filter
-all
-any
-min
-max
-sum
-reduce
-map
-each
+sort - done
+filter - done
+all - done
+any - done
+min - done
+max - done
+sum - done
+reduce - done
+map - done
+each - homework
 groupBy
 */
 
@@ -171,3 +171,144 @@ print("Filter", function(){
 
    })
 });
+
+print("All", function(){
+    function all(list, predicate){
+        for(var i=0; i<list.length; i++)
+            if (!predicate(list[i])) return false;
+        return true;
+    }
+    var areAllCostlyProducts = all(products, function(product){
+        return product.cost > 50;
+    });
+    console.log("Are all products costly - ", areAllCostlyProducts);
+});
+
+print("Any", function(){
+    function any(list, predicate){
+        for(var i=0; i<list.length; i++)
+            if (predicate(list[i])) return true;
+        return false;
+    }
+    var areThereAnyCostlyProducts = any(products, function(product){
+        return product.cost > 50;
+    });
+    console.log("Are there any costly products - ", areThereAnyCostlyProducts);
+});
+
+print("Min", function(){
+   function min(list, valueSelector){
+       var result = valueSelector(list[0]);
+       for(var i=1; i<list.length; i++){
+           var value = valueSelector(list[i]);
+           if (value < result) result = value;
+       }
+       return result;
+   }
+   var minCost = min(products, function(p){ return p.cost; });
+    console.log("Min cost = ", minCost);
+   var minUnits = min(products, function(p){ return p.units; });
+    console.log("Min units = ", minUnits);
+});
+
+print("Max", function(){
+   function max(list, valueSelector){
+       var result = valueSelector(list[0]);
+       for(var i=1; i<list.length; i++){
+           var value = valueSelector(list[i]);
+           if (value > result) result = value;
+       }
+       return result;
+   }
+   var maxCost = max(products, function(p){ return p.cost; });
+    console.log("Max cost = ", maxCost);
+   var maxUnits = max(products, function(p){ return p.units; });
+    console.log("Max units = ", maxUnits);
+});
+
+print("Sum", function(){
+   function sum(list, valueSelector){
+       var result = valueSelector(list[0]);
+       for(var i=1; i<list.length; i++){
+           var value = valueSelector(list[i]);
+           result += value;
+       }
+       return result;
+   }
+   var overAllStock = sum(products, function(p){ return p.units; });
+    console.log("Sum of units = ", overAllStock);
+});
+
+print("Reduce", function(){
+    function reduce(list, iterator, seed){
+        var result = seed;
+        for(var i=0; i<list.length; i++)
+            result = iterator(result, list[i]);
+        return result;
+    }
+    var minCost = reduce(products, function(result, product){
+        return result < product.cost ? result : product.cost;
+    }, Number.MAX_VALUE);
+    console.log("Min cost = ", minCost);
+
+    var maxUnits = reduce(products, function(result, product){
+        return result > product.units ? result : product.units;
+    }, Number.MIN_VALUE);
+    console.log("Max Units = ", maxUnits);
+
+    var totalUnits = reduce(products, function(result, product){
+        return result + product.units;
+    }, 0);
+    console.log("Total Units = ", totalUnits);
+
+
+});
+
+print("Map", function(){
+    function map(list, iterator){
+        var result = [];
+        for(var i=0; i<list.length; i++)
+            result.push(iterator(list[i]));
+        return result;
+    }
+    var discountedProducts = map(products, function(product){
+        return {
+            id : product.id,
+            name : product.name,
+            cost : product.cost,
+            discountedCost : product.cost * 0.9
+        };
+    })
+    console.table(discountedProducts);
+});
+
+print("GroupBy", function(){
+    function groupBy(list, keySelector){
+        var result = {};
+        for(var i=0; i<list.length; i++){
+            var key = keySelector(list[i]);
+            result[key] = result[key] || [];
+            result[key].push(list[i]);
+        }
+        return result;
+    }
+    function printGroup(group){
+        for(var key in group){
+            print("Key - " + key, function(){
+                console.table(group[key]);
+            });
+        }
+    }
+    print("Products by category", function(){
+        var productsByCategory = groupBy(products, function(p){return p.category});
+        printGroup(productsByCategory);
+    });
+    print("Products by cost", function(){
+        var productByCost = groupBy(products, function(p){
+            return p.cost > 50 ? "costly" : "affordable";
+        });
+        printGroup(productByCost);
+    })
+})
+
+
